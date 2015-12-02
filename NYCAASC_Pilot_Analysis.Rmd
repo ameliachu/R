@@ -1,0 +1,120 @@
+---
+title: "NYCAASC_Pilot_Analysis"
+author: "Amelia Chu"
+date: "November 19, 2015"
+output: html_document
+---
+
+NYCAASC Pilot Analysis
+------
+Loading Libraries:
+```{r setup, cache=FALSE, echo=FALSE}
+library(stringr)
+```
+
+Reading Data:
+```{r}
+data <- read.csv("/Users/ameliachu/Dropbox/NYCAASC_Pilot_Quant_CLEAN.csv")
+```
+
+Creating Dummy Variables for whatInfo responses:
+```{r}
+data$whatInfo_learn <- str_detect(as.character(data$whatInfo),"Learn about History of NYCAASC")
+
+data$whatInfo_learnHist <- str_detect(as.character(data$whatInfo),"Learn about History of NYCAASC")
+
+data$whatInfo_learnChair <- str_detect(as.character(data$whatInfo),"To Learn About NYCAASC Directors and Chairs")
+
+data$whatInfo_apply <- str_detect(as.character(data$whatInfo),"To Apply for Committee Membership")
+
+data$whatInfo_ahm <- str_detect(as.character(data$whatInfo),"Information on AHM (Asian Heritage Month)")
+
+data$whatInfo_mistake <- str_detect(as.character(data$whatInfo),"I came upon the website by mistake")
+
+data$whatInfo_general <- str_detect(as.character(data$whatInfo),"General Information about NYCAASC")
+```
+No significant differences in  ability to find information, perceived ease of use or perceived aesthetic appeal, in terms of what information participants were seeking.
+
+Distribution of Members by School:
+```{r}
+summary(data$school)
+```
+
+```{r}
+summary(data$easeInfo)
+summary(data$findInfo)
+sd(data$easeInfo, na.rm=TRUE)
+sd(data$findInfo, na.rm=TRUE)
+summary(data$prettyWeb)
+sd(data$prettyWeb, na.rm=TRUE)
+
+```
+
+No significant relationship between percieved ease of use and perceived aesthetic appeal.
+
+Close to significant relationship between perceived ease of use and ability to find information (p = .062).
+
+```{r}
+linear <- lm(easeInfo ~ findInfo, data)
+summary(linear)
+```
+
+^easeInfo = 5.23 - 0.7689findInfo + 0.3472prettyweb
+There is statistically significant evidence that this model is useful in predicting easeInfo (p=0.04037).
+Maybe percieved easeInfo
+
+```{r}
+linear <- lm(easeInfo ~ findInfo + prettyWeb, data)
+summary(linear)
+```
+
+No significant differences between frequency of visits and perceived ease of use. 
+No significant differences between frequency of visits and ability to find information. 
+Significant difference between frequency of visits and perceived aesthetic appeal (p = .0251). 
+
+```{r}
+summary(data$prettyWeb)
+summary(data$visitFreq)
+fit <- aov(prettyWeb ~ visitFreq, data = data)
+summary(fit)
+boxplot(prettyWeb ~ visitFreq, data = data, horizontal = TRUE)
+```
+
+```{r}
+data$school2 <- ifelse((str_detect(as.character(data$school), fixed("High School"))), "highschool", "college")
+school <- as.factor(data$school2)
+data$schoolLevel <-  school : data$yearSchool
+```
+
+Close to significant difference in perceived aesthetic appeal in terms of year in school (p = 0.0874).
+
+```{r}
+summary(data$schoolLevel)
+fit <- aov(prettyWeb ~ schoolLevel, data = data)
+summary(fit)
+```
+
+Significant difference in perceived ease of use in terms of year in school (p = 0.0379).
+```{r}
+fit <- aov(easeInfo ~ schoolLevel, data = data)
+summary(fit)
+
+boxplot(easeInfo ~ schoolLevel, data = data, horizontal = TRUE)
+```
+
+Close to significant difference in ability to find information in terms of year in school (p = 0.0874).
+```{r}
+fit <- aov(findInfo ~ schoolLevel, data = data)
+summary(fit)
+```
+
+No significant differences in ability to find information, perceived ease of use, or perceived aesthetic appeal, in terms of how participant learned of NYCAASC. 
+
+```{r}
+data$findConf2 <- ifelse((str_detect(as.character(data$findConf), fixed("Pong"))), "Pong", ifelse((str_detect(as.character(data$findConf), fixed("NYCAASC website"))), "NYCAASC website", ifelse((str_detect(as.character(data$findConf), fixed("NYU Clubfest"))), "NYU Clubfest", ifelse((str_detect(as.character(data$findConf), fixed("AHM Email"))), "AHM Email", ifelse((str_detect(as.character(data$findConf), fixed("NYCAASC Flyer"))), "NYCAASC Flyer", " Other Human Referral")))))
+
+summary(as.factor(data$findConf2))
+#data$findConf2 No significance, but at least I know how to do this now... TT-TT
+
+```
+
